@@ -1,0 +1,12 @@
+strdef loopstr
+sprint(loopstr,"%s",MultipleRunControlGUI[0].file_name)
+for(DrivePower=0; DrivePower <= 4; DrivePower=DrivePower+0.33){ 
+sprint(loopstr,"%s_%d",loopstr,int(0+0.01+(DrivePower-(0))/0.33))
+MRC_PrepareModel()
+MultipleRunControlGUI[0].preparerun()
+MRC_Run()
+MultipleRunControlGUI[0].printtofile(loopstr)
+print loopstr
+sprint(loopstr,"%s",MultipleRunControlGUI[0].file_name)
+}
+ 

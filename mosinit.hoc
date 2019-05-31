@@ -1,0 +1,6 @@
+//moddir mods/other_mods mods/synapse
+chdir("main")
+load_file("Control_execute_network_bgk.hoc")
+tstop=400
+init()
+run()

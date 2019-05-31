@@ -1,0 +1,70 @@
+//Creation of files designed to print main parameters values
+ 
+begintemplate write_string //Equivalent to ronalds string handler
+    public str
+    strdef str
+    proc init(){
+    str=$s1
+    }
+endtemplate write_string
+
+
+objref wrd1,Paramet_file
+wrd1=new write_string("")
+Paramet_file=new File()
+strdef name1
+
+proc print_parameters(){local flag 
+ flag=$1
+ name1=$s2
+  sprint(wrd1.str,"Paramet_file.wopen(\"%s\")",name1)
+  execute(wrd1.str)
+  Paramet_file.printf("The File Name is %s \n \n", name1)
+  Paramet_file.printf("total simulated time= %g \n", tstop)
+  Paramet_file.printf("number of E cells= %g \n", n_P)
+  Paramet_file.printf("number of I cells= %g \n", n_FS)
+  Paramet_file.printf("number of E cells layers= %g \n", n_layerP)
+  Paramet_file.printf("number of I cells layers= %g \n",n_layerFS)  
+  Paramet_file.printf("IE connections percentage= %g \n", IEperc)
+  Paramet_file.printf("WsynIE= %g \n", Wie)
+  Paramet_file.printf("variance WsynIE= %g (%s) \n",SDwie,vrc_flag1)
+  Paramet_file.printf("EE connections percentage= %g \n", EEperc)
+  Paramet_file.printf("WsynEE= %g \n", Wee )
+  Paramet_file.printf("variance WsynEE= %g (%s)\n", SDwee,vrc_flag2)
+  Paramet_file.printf("II connections percentage= %g \n", IIperc)
+  Paramet_file.printf("WsynII= %g \n", Wii)
+  Paramet_file.printf("variance WsynII= %g (%s)\n", SDwii,vrc_flag3)
+  Paramet_file.printf("EI connections percentage= %g \n", EIperc)
+  Paramet_file.printf("WsynEI= %g \n", Wei)
+  Paramet_file.printf("variance WsynEI= %g (%s) \n", SDwei,vrc_flag4)  
+  Paramet_file.printf("External Spike Number to I= %g (not in use yet by itself)\n", nSpikesI)
+  Paramet_file.printf("External Spike Number to E= %g (not in use yet by itself)\n", nSpikesE)
+  Paramet_file.printf("min Amplitude external baseline to E cell= %g (nA) \n", AminE)
+  Paramet_file.printf("max Amplitude external baseline to E cell= %g (nA) \n", AmaxE)
+  Paramet_file.printf("min Amplitude external baseline to I cell= %g (nA) \n", AminI)
+  Paramet_file.printf("max Amplitude external baseline to I cell= %g (nA) \n", AmaxI)
+  Paramet_file.printf("Synaptic Delay (in ms)= %g \n", Delay)
+  Paramet_file.close()
+  
+  print "Parameters can be found in, ", name1 
+//==============================================================================
+//==============================================================================
+
+
+
+
+}
+
+
+//execute(wd1.str)
+    //print wd1.str
+    //a=file_name
+   /* 
+   objref wrd1
+   wrd1=new write_string("")
+    
+    f=new File()
+    
+    f.ropen("parameters.dat")
+    sprint(wrd1.str,"Spikesource%s[%g].o(%g).number=%g",end1,layer,i,numb)
+    */

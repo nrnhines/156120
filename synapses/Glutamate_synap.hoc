@@ -1,0 +1,62 @@
+/*Excitatory synapse Glutamate-mediated  for a non-specific current*/
+load_file("nrngui.hoc")
+//objref
+proc put_param_NMDA(){localobj NMDA_Syn //NMDA RECEPTOR
+    NMDA_Syn=$o1
+    NMDA_Syn.Cdur=$2   // (ms) transmitter duration into the cleft
+    NMDA_Syn.Alpha=$3  // (mM)	
+    NMDA_Syn.Erev = $4 // (mV)
+	  NMDA_Syn.g*=$5     // (pS/um2)*(um2)         
+   } 
+   
+proc mk_NMDA_s(){local i,nSyn, nCells,flagt, nDendt, place,tgref,glu_cleft,bound,volt,g_factor,change_param     
+    nSyn=$1 nCells=$2 flagt=$3 nDendt=$4 place=$5 change_param=$8
+    for i=0,nSyn-1 {
+    tgref=(i%nCells)
+    if(flagt==0){$o6.o(tgref).soma $o7.append(new nmdaR(place))}
+    if(flagt==1){$o6.o(tgref).Dend[nDendt] $o7.append(new nmdaR(place))}
+    if(change_param==0){
+        glu_cleft=4   bound=0.3   volt=0 
+        g_factor=0//$o6.o(tgref).Area()//synaptic strength  factor E->E
+        put_param_NMDA($o7.o(i),glu_cleft,bound,volt,g_factor)
+    }else{if(change_param==1){
+        glu_cleft=4   bound=0.3   volt=0 
+        g_factor=$o6.o(tgref).Area()//synaptic strength  factor E->I
+        put_param_NMDA($o7.o(i),glu_cleft,bound,volt,g_factor)}
+        }
+   // print "create syn in ",i," ", tgref," ",$o6.o(tgref)," ",$o7.o(i), " g= ", g_factor
+    }
+
+}
+
+proc put_param_AMPA(){localobj AMPA_Syn
+    AMPA_Syn=$o1
+    AMPA_Syn.Cdur=$2   // (ms) transmitter duration into the cleft
+    AMPA_Syn.Alpha=$3  // (mM)	
+    AMPA_Syn.Erev = $4 // (mV)
+	  AMPA_Syn.g_specif*=$5   // (pS/um2)*(um2)  
+    AMPA_Syn.cellu_area=$6       
+   } 
+   
+proc mk_AMPA_s(){local i,nSyn, nCells,flagt, nDendt, place,tgref,glu_cleft,bound,volt,g_factor,change_param,ac     
+    nSyn=$1 nCells=$2 flagt=$3 nDendt=$4 place=$5 change_param=$8
+    for i=0,nSyn-1 {
+    tgref=(i%nCells)
+    if(flagt==0){$o6.o(tgref).soma $o7.append(new AMPA_S(place))}
+    if(flagt==1){$o6.o(tgref).Dend[nDendt] $o7.append(new AMPA_S(place))}
+    if(change_param==0){
+        glu_cleft=1   bound=1.1   volt=0 
+        g_factor=0.1          // dimensionless synaptic strength  factor E->E //0
+        ac=$o6.o(tgref).Area()//(um2)
+        put_param_AMPA($o7.o(i),glu_cleft,bound,volt,g_factor,ac)
+    }else{if(change_param==1){
+        glu_cleft=1   bound=1.1   volt=0
+        g_factor=0.1//synaptic strength  factor E->I
+        ac=$o6.o(tgref).Area()//(um2)
+        put_param_AMPA($o7.o(i),glu_cleft,bound,volt,g_factor,ac)}
+        
+          }
+   // print "create syn in ",i," ", tgref," ",$o6.o(tgref)," ",$o7.o(i), " g= ", g_factor
+    }
+
+}

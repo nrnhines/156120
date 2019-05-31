@@ -1,0 +1,109 @@
+/*
+Template to build a simple pyramidal cell conceptual model of soma and two dendrites
+Based on the Dustewitz model
+*/
+load_file("nrngui.hoc")
+load_file("presets_WT1.hoc")
+begintemplate Pyramidal
+
+public soma,Dend,connectotarget,connections,position,x,y,z,s,netcon,Area
+
+external ra, c_m, g_passive
+external ENa_pyr, EK_pyr,  v_rest_pyr, ghd
+external GK_pyr_s,      GNa_pyr_s  	// Soma current densities
+                             		// Apical dendrite proximal current densities
+
+
+
+create soma
+access soma
+objref connections,s,netcon
+proc init(){local i
+create soma
+connections=new List()//Defines a list of connections for each cell 
+netcon=new List() //for stimuli and others
+//defined  from this template
+/* Some previous parameters                             */
+    soma geometry() 
+    biophys()
+    access soma
+   
+}
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+proc geometry(){
+	
+	
+	// Set soma diameter and length
+	soma {
+		L=20
+		diam=20
+		nseg=1
+	   }
+}
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+
+proc biophys(){
+	
+	soma {             //all the parameters values in presets_WT1.hoc    
+        Ra = ra        //Insert Passive Current
+		cm = c_m 
+	   
+       
+            insert pas
+	        g_pas = g_passive
+	        e_pas =v_rest_pyr 
+	   
+	     // HH-style  potassium channel 
+	    	insert  KPyr
+	    	gbar_KPyr=GK_pyr_s    
+	    	ek=EK_pyr
+	    	
+	    	
+	    	
+	    	
+	    	
+    
+        	// HH-style sodium channel 
+	    	insert NaPyr
+	    	gbar_NaPyr=GNa_pyr_s
+	    	ena=ENa_pyr
+	    	//insert km          //muscarinic cur
+            
+            
+                //insert hd          //h current
+                //ghdbar_hd=ghd
+                //vhalfl_hd=-82 //from Maggee 98 (at soma)
+                //ehd_hd=-30 
+            
+            
+            /*
+            insert hh1
+            gkbar_hh1=GK_pyr_s    
+	    	ek=EK_pyr
+	        gnabar_hh1=GNa_pyr_s
+	    	ena=ENa_pyr
+	    	gl_hh1=g_passive*/
+	}
+	
+}
+
+func Area(){local a
+    access soma
+    a=area(0.5)
+    return a
+}
+endtemplate Pyramidal
+
+//=========================================================================================
+
+obfunc create_pyrams(){local ncell localobj List_cells 
+ncell=$2
+$o1.remove_all()
+List_cells=$o1
+for i=0, ncell-1{
+List_cells.append(new Pyramidal())
+}
+return List_cells
+}

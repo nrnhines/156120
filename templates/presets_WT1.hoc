@@ -1,0 +1,49 @@
+//-----------------------------------------------------------------------------------
+//
+// Title: 	PresetsWT1.hoc 
+// Author(s): 	Oscar Javier Avella Gonzalez
+// 
+// Background, Related Papers: 	
+// Model is based on a description for fast spiking neuron given in Borgers and Koppel 
+// paper "Background gamma rhythmicity and attention in cortical local circuits:
+//A computational study"
+//-----------------------------------------------------------------------------------
+
+
+
+// ==============================================================
+// =                    General Settings                        =    
+// ==============================================================
+ra        = 150			// in  (ohm cm)
+global_ra = ra			// in  (ohm cm)
+g_passive = (1e-4)      // in  (S/cm^2)
+c_m       = 1			// in  (10e-6 F cm^-2)
+v_init    = -70           // in  (mV)
+celsius   = 37			// in  degrees Celsius
+// ==============================================================
+// ==============================================================
+// =    Fast Spiking Presets, used in Template Fast_Spiking     =
+// ==============================================================
+EK_fs       =   -100//-90	//  (mV)
+ENa_fs      =    50//60		//  (mV)
+v_rest_fs   =   -67		    //  (mV)
+
+    //Na and K maximum conductances
+GNa_fs      =   1000//350			// in  (pS/um2)
+GK_fs       =    800// 90			// in  (pS/um2)
+// ==============================================================
+// ==============================================================
+// =     Pyramidal Cell Presets, used in Template Pyramidal     =
+// ==============================================================
+EK_pyr      =   -100//-80         // in  (mV)
+ENa_pyr     =    50         // in  (mV)
+v_rest_pyr  =   -67          // in  (mV)
+
+    //Na and K maximum conductances
+GNa_pyr_s   =   1000//  550         // in  (pS/um2) 
+GK_pyr_s    =   800//   150         // in  (pS/um2)
+ghd         =   .5e-4//2.3e-4//93e-4 //h-chann cond.// in   (S/cm2)//=>   "Single Ih Channels in Pyramidal Neuron Dendrites:
+                                                     //=>   Properties, Distribution, and Impact on Action Potential Output
+                                                     //=>   The Journal of Neuroscience, February 8, 2006 • 26(6):1677–1687 • 1677
+// ==============================================================
+// ==============================================================

@@ -1,0 +1,76 @@
+objref vec_spk, nil, spks_times,word,Spikes_file,spk_netcon,strg,temp_V
+strdef end
+word=new string("") 
+
+
+ 
+//Creation of file to save the vectors
+  //======================================
+        Spikes_file = new File("./output_matlab/Extern_spikesXXX.m")  
+  //====================================== 
+        for(Cell_type=0;Cell_type<n_types;Cell_type+=1){
+          if(Cell_type==0){NL=n_layerP end="P" n_cells=n_P sgr=sub_spkE}else{
+          if(Cell_type==1){NL=n_layerFS end="FS" n_cells=n_FS sgr=sub_spkI}}
+          for(c_idx=0;c_idx<NL;c_idx+=1){
+            for(idx_spk=0;idx_spk<=sgr;idx_spk+=1){
+                sprint(word.str, "objref Spks_to%s%g_%g",end,c_idx,idx_spk)
+                execute(word.str)
+                sprint(word.str, "Spks_to%s%g_%g=new List()",end,c_idx,idx_spk)
+                execute(word.str)
+                }
+               }
+              }
+ proc Get_artif_Spks(){
+    for(Cell_type=0;Cell_type<n_types;Cell_type+=1){
+      if(Cell_type==0){NL=n_layerP end="P" n_cells=n_P sgr=sub_spkE}else{
+      if(Cell_type==1){NL=n_layerFS end="FS" n_cells=n_FS sgr=sub_spkI}}
+      for(c_idx=0;c_idx<NL;c_idx+=1){
+        for(idx_spk=0;idx_spk<=sgr;idx_spk+=1){               
+          for(k=0;k<=n_cells-1;k+=1) {
+           vec_spk=new Vector()           
+           sprint(word.str, "spk_netcon=new NetCon(Spikesource%s%g[%g].o(%g), nil)",end,idx_spk,c_idx,k)
+           execute(word.str)      
+           spk_netcon.record(vec_spk)
+           sprint(word.str, "Spks_to%s%g_%g.append(vec_spk)",end,c_idx,idx_spk)
+           execute(word.str)             
+              }  
+             }   
+            }    
+           }     
+          }
+
+    Get_artif_Spks()
+       
+ /*=====================================================Printing to file========================================================*/
+  /*====================================================Printing to file=======================================================*/
+
+ proc spk2file(){local i,r,Cell_type,NL,n_cells,n_cels,n_streams localobj Spks 
+        strg=new string("")   temp_V=new Vector()  
+        if(!Spikes_file.isopen()){Spikes_file.aopen()}
+        if(Spikes_file.isopen()){
+                for(Cell_type=0;Cell_type<n_types;Cell_type+=1){n_streams=0
+                  if(Cell_type==0){NL=n_layerP end="P" n_cells=n_P sgr=sub_spkE}else{if(Cell_type==1){NL=n_layerFS end="FS" n_cells=n_FS sgr=sub_spkI}}              
+                        for(i=0;i<NL;i+=1){                        
+                             if(i==0){ 
+                                sprint(strg.str,"Spks_to%s%g=cell(%g,1);",end,i,n_cells)
+                                Spikes_file.printf("%%External noise to cells in %s%g\n  %s \n ", end,i, strg.str)
+                                }                                                       
+                                 for(n_cels=0;n_cels<n_cells;n_cels+=1){                                
+                                  for(idx_spk=0;idx_spk<=sgr;idx_spk+=1){
+                                   n_streams+=1                                 
+                                   sprint(strg.str,"temp_V=Spks_to%s%g_%g.o(%g)",end,i,idx_spk,n_cels)
+                                   execute(strg.str)/*(if more than one stream of action potentials first the corresponding cell with all streams  then the next and so on) */
+                                   //if the size is higher must be multiple of the number of cells so  if  V_size >n_cells  V_size==n*n_cells in order to be able to being read  
+                                   Spikes_file.printf("%%External Spikes: %s%g_cell %g \n Spks_to%s%g{%g}=[\n ",end,i,n_cels,end,i,n_streams)
+                                   temp_V.printf(Spikes_file)                                
+                                   //Spks.fprint(Spikes_file,"%1.5e")                                                            
+                                  Spikes_file.printf("];\n")                                                 
+                                      }
+                                     }
+                                   }                                           
+                                  }
+                                 Spikes_file.close()
+		                }       
+                               } 
+
+      

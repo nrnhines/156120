@@ -1,0 +1,144 @@
+//Some partial modifications from original of Ronald van Elburg
+objectvar save_window_, rvp_
+objectvar scene_vector_[5]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+
+
+//We are using here the String template defined in instrument_and_visualize_bgk_multi_alpha.hoc
+
+objref wd1,wd2
+wd1=new string("")
+//creating objects to change the list names in order for the multirun file to be able to read them.
+for(i=0;i<n_layerP;i+=1){
+sprint(wd1.str,"objref layerP%d",i)
+execute(wd1.str)
+sprint(wd1.str,"layerP%d=layerP[%d]",i,i)
+execute(wd1.str)
+}
+
+for(i=0;i<n_layerFS;i+=1){
+sprint(wd1.str,"objref layerFS%d",i)
+execute(wd1.str)
+sprint(wd1.str,"layerFS%d=layerFS[%d]",i,i)
+execute(wd1.str)
+}
+
+//Begin MultipleRunControlGUI[0]
+strdef nme
+nme="./figures/huge_network_ww_optimal.txt"
+
+                                          
+{
+load_file("../../MRC/MultipleRunControl.hoc","MultipleRunControlGUI")
+}         
+ 
+{
+ocbox_ = new MultipleRunControlGUI(1)
+}                                                                              
+{object_push(ocbox_)}
+{ 
+file_name="./output_matlab/WaxingWaning"
+file_index_start=0
+}
+{tobj=new MRC_Protocol()}
+	{object_push(tobj)}
+	{
+		output_matlab_mfile=1
+		output_neuronbinary=0
+		output_axontextfile=0
+	}
+	{object_pop()}
+
+{protocol=tobj}
+{tobj=new MRC_LoopParameter()}
+	{object_push(tobj)}    
+	{
+		name="DrivePower"
+		lower_limit=0
+		upper_limit=4
+		stepsize=0.33
+		use=1
+		setdisplaytext()
+	}
+	{object_pop()}
+
+{looppars.append(tobj)}
+
+//==============================================================================
+//==============================================================================
+//Raster_plot0 from pyramidal cells
+
+{tobj1=types_outpar.gettypefromindex(2)}
+{tobj=new MRC_OutputVariable("Raster_P0",tobj1,protocol)}
+	{object_push(tobj)}
+	{
+    		use=1
+		setdisplaytext()
+	}
+	{object_pop()}
+    {tobj1=tobj.gethandler()}
+	{object_push(tobj1)}
+	{
+		record_start=0                //this big brace states the parameters  
+		record_stop=tstop               //of time to run the simulation
+		threshold=0
+		//sprint(wd1.str,"listname=\"layerP[0]\"") //This lines are  those  that I am trying to 
+    //execute(wd1.str)                         //create and execute...
+    listname="layerP0"//this is just one example but is also not working..... 
+		sectionname="soma"
+		membername="v(0.5)"
+		listtype=0
+		useindexing=0
+		isart=0
+		shortname="Raster_P0"
+	}
+	{object_pop()} 
+	{outpars.append(tobj)}
+	
+  //==============================================================================
+//==============================================================================
+
+	
+  //Raster_plot0 from fast spiking cells	
+	{tobj1=types_outpar.gettypefromindex(2)}
+    {tobj=new MRC_OutputVariable("RasterFS0",tobj1,protocol)}
+	{object_push(tobj)}
+	{
+		use=1
+		setdisplaytext()
+	}
+	{object_pop()}
+{tobj1=tobj.gethandler()}
+	{object_push(tobj1)}
+	{
+		record_start=0                
+		record_stop=tstop               
+		threshold=0
+		listname="layerFS0"
+		sectionname="soma"
+		membername="v(0.5)"
+		listtype=0
+		useindexing=0
+		isart=0
+		shortname="RasterFS0"
+	}
+	{object_pop()} 
+	{outpars.append(tobj)}
+ 
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+{object_pop()}
+{
+ocbox_.map("MultipleRunControlGUI[0]", 817, 375, 378, 261.9)
+}
+objref ocbox_
+//End MultipleRunControlGUI[0]
+
+objectvar scene_vector_[1]
+{doNotify()}
+
+

@@ -1,0 +1,33 @@
+// Instantiate CVode
+	
+	
+	objref cvode
+	cvode = new CVode()
+	
+	IsActive=cvode.active(1)
+	fprint( "IsActive: %d \n", IsActive)
+	
+	
+	UseLocalDtOn=cvode.use_local_dt(1)
+	fprint( "Use Local dt: %d \n", UseLocalDtOn)
+	
+	objref cvode_init_vbox
+	
+	if(UseLocalDtOn==0){	
+		dialog_outcome=0
+		cvode_init_vbox= new VBox(2)
+		cvode_init_vbox.map()
+					dialog_outcome=cvode_init_vbox.dialog("Warning: not using the local timestep!\n Probably CVode could not be initialized because no section was created!","Continue","Quit Simulation")
+		cvode_init_vbox.unmap()	
+		
+		if(dialog_outcome==0){
+			quit()
+		}
+	}
+
+
+// Use interpolation in threshold detection, this is useful for large timesteps and slow approach of threshold. 
+// In combination with hf-synaptic stimulation the use of this setting is debatable.
+	cvode.condition_order(2)
+	ConditionOrder=cvode.condition_order()
+	fprint( "Condition Order: %d \n", ConditionOrder)

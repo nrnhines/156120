@@ -1,0 +1,154 @@
+load_file("nrngui.hoc")                         //1
+load_file("../templates/FS_WT_modif.tem")       //2
+load_file("../templates/Pyram_WT_modif.tem")    //3
+load_file("../connections/Def_connec_bgk2.hoc") //4
+//*****************************************************************************************
+//*****************************************************************************************
+n_P=80          //number of Pyramidal cells                  ***gamma oscill if         ***
+n_FS=20        //Number of fast spiking                     ***AminE=20e-3,AmaxE=25e-3,***
+n_layerP=1      //number of pyr_cells layers                 ***AminI=2e-3, AmaxI=5e-3  ***
+n_layerFS=1     //number of fs_cells layers                  ***Wie=9e-3  Wii=1e-2      ***
+IEperc=0.6      //0.5//1//0.3      //percentage of  IE  presinaptic inputs
+Wie=4e-2        //5e-3//0.04//0.005//synaptic weight (al previos simulations 0.04)
+SDwie=0.001     //Standard Deviation
+EEperc=0.3      //percentage of  EE  presinaptic inputs
+Wee=5e-2//0.05  //synaptic weight
+SDwee=0.005     //Standard Deviation
+IIperc=0.55     //                   0.55//0.52      //percentage of  II  presinaptic inputs
+Wii=1e-2        //7e-3  //0.007//0.01        //synaptic weight
+SDwii=0.002     //Standard Deviation
+EIperc=0.65//0.6      //percentage of  EI  presinaptic inputs
+Wei=5e-2//0.05       //synaptic weight
+SDwei=0.003     //Standard Deviation
+nSpikesE=0      //tstop/interv(not in use yet by itself)
+nSpikesI=0      //tstop/iterv(not in use yet by itself)
+w_spk_I=3.3e-4  //0//0.000035 // (uS) max conductance of artif Spike synapse to I cells 
+w_spk_E=3.3e-4  //0.00070 //(uS)  max conductance of artif Spike synapse to E cells
+interval_E=9e10 //average inter_random_interspikes interval (100 ms originally)
+interval_I=9e1//2.8e2  //6.5e10//(original  100ms=10Hz)
+CCh_fct=1//.5
+AminE=8e-6*CCh_fct//0.4//0.8//nA min Amplitude external baseline to E cell (scaled in instruments file) ** to get real value  in nA
+AmaxE=9e-6*CCh_fct//0.6//0.9 //nA max Amplitude external baseline to E cell                             ** multiply the amplitude without e-3
+AminI=3e-6*CCh_fct//nA min Amplitude external baseline to I cell                                         ** by the factor 0.0012566371
+AmaxI=5e-6*CCh_fct//nA max Amplitude external baseline to i cell
+
+strdef vrc_flag1,vrc_flag2,vrc_flag3,vrc_flag4
+//*********************************************\\*//*******************************************
+sub_spkE=0 //number of additional independent spk stream to Epop 
+sub_spkI=0 //number of additional independent spk stream to Ipop
+intv_hfE=1e0//Additional Driving Spk stream period (ms) if any
+intv_hfI=1e1//Additional Driving Spk stream period (ms) if any
+w_add_I=3e-4   //synaptic weight of additional stream to I cells
+w_add_E=3e-4   //synaptic weight of additional stream to E cells
+load_file("../Instrum_Visualize/Instrument_and_visualize_100509.hoc")//5 External drive
+tstop=4e4   //CHANGE THIS VALUE TO 2000
+tmin=1.2e2          //initial time for voltage traces recordings             
+tmax=2.3e2           //final time for voltage traces recordins     
+//*****************************************************************************************
+n_SgabaP=n_layerP*n_P*n_layerFS*n_FS     //Number of gaba synapses in Pyramidal
+n_SgabaFS=n_layerFS*n_FS*n_layerFS*n_FS  //Number of gaba synapses in FS
+n_SnmdaP=n_layerP*n_P*n_layerP*n_P       //Number of Glutamatergic (nmda) synapses in Pyram
+n_SnmdaFS=0                              //Number of Glutamatergic (nmda) synapses in fast spiking cells
+n_sAMPAp=n_layerP*n_P*n_layerP*n_P       //Number of Glutamatergic (AMPA) synapses in Pyram
+n_sAMPAfs=n_layerP*n_P*n_layerFS*n_FS    //Number of Glutamatergic (AMPA) synapses in fast spiking cells
+tresh1=0 //GABA  I-E I-I                 
+tresh2=0 //AMPA  E-E E-I
+tresh3=0  //NMDA  E-E          problems  when higher number of cells and  threshold =-45mV
+//*****************************************************************************************
+//*****************************************************************************************
+objref layerP[n_layerP] //array containing  pyramidal cell lists (layers)
+objref SgabaP[n_layerP],SnmdaP[n_layerP],SampaP[n_layerP]
+objref layerFS[n_layerFS] //array containing each fs cell lists (layers)
+objref SgabaFs[n_layerFS],SnmdaFS[n_layerFS],SampaFS[n_layerFS]
+objref fih0,cvd
+//cvd=new CVode()
+fih0=new List()
+//******************************************************************************
+//****************************CELLS CREATION************************************
+if(n_P>0){
+    for(k=0;k<n_layerP;k+=1){
+        layerP[k]=new List()        
+        SgabaP[k]=new List()
+        SnmdaP[k]=new List()
+        SampaP[k]=new List()        
+        create_pyrams(layerP[k],n_P) //2   
+    }
+}
+if(n_FS>0){
+    for(j=0;j<n_layerFS;j+=1){
+        layerFS[j]=new List()
+        SgabaFs[j]=new List()
+        SnmdaFS[j]=new List()        
+        SampaFS[j]=new List()
+        create_FS(layerFS[j],n_FS)
+          
+    }
+}
+//******************************************************************************
+//*****************CONNECTIONS TO PYRAMIDAL*************************************
+    if(n_P>0&&n_layerP>0){
+        for(i=0;i<n_layerP;i+=1){
+         //createSpikeGen(layerP[i],interval_E,100,80,1,0,2,AminE,AmaxE,0,i)
+        num_e=1/interval_E
+        //createSpikeGen(layerP[i],interval_E,num_e,80,1,0,2,AminE,AmaxE,0,i)
+        createSpikeGen(layerP[i],interval_E,num_e,80,0.95,0,2,AminE,AmaxE,0,i,w_spk_E,sub_spkE,intv_hfE,w_add_E)
+        mk_GABA_s(n_SgabaP, n_P,0,0, 0.5,layerP[i], SgabaP[i], 1,1,0*i)
+        //mk_NMDA_s(n_SnmdaP, n_P,0,0, 0.5,layerP[i], SnmdaP[i], 0)
+        mk_AMPA_s(n_sAMPAp, n_P,0,0, 0.5,layerP[i], SampaP[i], 0)
+        for(j=0;j<n_layerFS;j+=1){
+            if(j==i){                              
+           conn_src_targ(n_P*n_FS,n_P,n_FS,0,tresh1,Wie,layerFS[j],layerP[i],SgabaP[i],IEperc)//,Wie,SDwie)//1)           
+           vrc_flag1=vrc_flag
+           }
+           }
+        
+        for(k=0;k<n_layerP;k+=1){        
+        if(k==i){
+           //percentage of  EE  presinaptic inputs
+        conn_src_targ(n_P*n_P,n_P,n_P,0,tresh1,Wee,layerP[k],layerP[i],SampaP[i],EEperc)//,Wee,SDwee)//0.5000011
+            vrc_flag2=vrc_flag
+            }
+        if(k<i){
+             //conn_src_targ(n_P*n_P,n_P,n_P,0,tresh1,0.01,layerP[k],layerP[i],SampaP[i],0.85)// 0.4)//connections inter-networks to large taus
+             }
+        if(k>i){
+             //conn_src_targ(n_P*n_P,n_P,n_P,0,tresh1,0.01,layerP[k],layerP[i],SampaP[i],0.85)// 0.4)//connections inter-networks to short taus
+                            }                   
+                          }
+                        }
+                      }
+//*****************CONNECTIONS TO FAST SPIKING**********************************
+//******************************************************************************
+
+if(n_FS>0&& n_layerFS>0){
+    for(i=0;i<n_layerFS;i+=1){
+        //createSpikeGen(layerFS[i],interval_I,100,80,1,0,2,AminI,AmaxI,1,i)//randomness 0.25,0.5 0.75 
+            num_i=100//tstop/6
+            //createSpikeGen(layerFS[i],interval_I,num_i,80,1,0,2,AminI,AmaxI,1,i)//
+            createSpikeGen(layerFS[i],interval_I,num_i,80,1,0,2,AminI,AmaxI,1,i,w_spk_I,sub_spkI,intv_hfI,w_add_I)//
+            mk_GABA_s(n_SgabaFS, n_FS,0,0, 0.5,layerFS[i],SgabaFs[i],0,1,0*i)
+            mk_AMPA_s(n_sAMPAfs,n_FS,0,0,0.5,layerFS[i],SampaFS[i],1)
+    
+        for(i1=0;i1<n_layerFS;i1+=1){
+            if(i1==i){                
+        conn_src_targ(n_FS*n_FS,n_FS,n_FS,0,tresh1,Wii,layerFS[i1],layerFS[i],SgabaFs[i],IIperc)//,Wii,SDwii)  
+            vrc_flag3=vrc_flag
+            }     
+        }
+        for(j=0;j<n_layerP;j+=1){        
+            if(j==i){
+            conn_src_targ(n_P*n_FS,n_FS,n_P,0,tresh1,Wei,layerP[j],layerFS[i],SampaFS[i],EIperc)//,Wei,SDwei)
+            vrc_flag4=vrc_flag
+            }
+            if(j<i){
+             //conn_src_targ(n_P*n_FS,n_FS,n_P,0,tresh1,0.0005,layerP[j],layerFS[i],SampaFS[i],0.85)//)0.07
+             }
+            if(j>i){
+            //conn_src_targ(n_P*n_FS,n_FS,n_P,0,tresh1,0.0005,layerP[j],layerFS[i],SampaFS[i],0.85)//)0.07
+                        }                        
+                      }
+                    }         
+                   }
+//*****************CONNECTIONS TO FAST SPIKING**********************************//
+//******************************************************************************//
+load_file("./in_process/Ext_Spks_counter.hoc") 

@@ -1,0 +1,26 @@
+The File Name is ./figures/huge_network_ww_optimal.txt 
+ 
+total simulated time= 40000 
+number of E cells= 80 
+number of I cells= 20 
+number of E cells layers= 1 
+number of I cells layers= 1 
+IE connections percentage= 0.6 
+WsynIE= 0.04 
+variance WsynIE= 0.001 (not in use) 
+EE connections percentage= 0.3 
+WsynEE= 0.05 
+variance WsynEE= 0.005 (not in use)
+II connections percentage= 0.55 
+WsynII= 0.01 
+variance WsynII= 0.002 (not in use)
+EI connections percentage= 0.65 
+WsynEI= 0.05 
+variance WsynEI= 0.003 (not in use) 
+External Spike Number to I= 0 (not in use yet by itself)
+External Spike Number to E= 0 (not in use yet by itself)
+min Amplitude external baseline to E cell= 8e-06 (nA) 
+max Amplitude external baseline to E cell= 9e-06 (nA) 
+min Amplitude external baseline to I cell= 3e-06 (nA) 
+max Amplitude external baseline to I cell= 5e-06 (nA) 
+Synaptic Delay (in ms)= 1 

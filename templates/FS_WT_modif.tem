@@ -1,0 +1,124 @@
+/*
+Template of a simple/single  fs basket cell, conceptual model of somatic cell
+Based on the Destexhe-van Elburg model  and parameters
+*/
+load_file("nrngui.hoc")
+load_file("presets_WT1.hoc")
+
+begintemplate fast_spiking
+
+public soma,Dend,connections,netcon,position,x,y,z,f1,geometry,biophys,Area
+create soma
+access soma
+external ra, c_m, g_passive, ENa_fs, EK_fs, GK_fs, GNa_fs, v_rest_fs//fs normal parameters
+external ENa_pyr, EK_pyr,GK_pyr_s,GNa_pyr_s,ghd // pyram parameters (Boergers Kopell)
+  
+
+objref connections,netcon
+
+proc init(){
+    create soma
+    connections=new List()
+    netcon=new List()
+    geometry()
+	biophys()
+	}
+
+proc geometry(){
+	soma {
+		L=20
+		diam=20
+		nseg=1
+	}
+}
+
+proc biophys(){
+	soma {   //all the parameters vlues in presets_WT1.hoc
+		Ra = ra 
+	    cm = c_m 
+	    	
+		//Insert Passive Current
+		insert pas
+		    g_pas = g_passive
+		    e_pas = v_rest_fs
+		    //insert hh
+		
+		insert  KPyr
+	    	gbar_KPyr=GK_pyr_s    
+	    	ek=EK_pyr
+	    	
+	    	// HH-style sodium channel 
+	    	insert NaPyr
+	    	gbar_NaPyr=GNa_pyr_s
+	    	ena=ENa_pyr
+	    	
+	    /*	insert hd          //h current
+                ghdbar_hd=ghd
+                vhalfl_hd=-73
+                ehd_hd=-30 
+	    */	
+        
+		//Insert Potassium Current
+		/*insert KFS
+			gbar_KFS=GK_fs
+			ek_KFS=EK_fs
+		
+		//Insert Sodium Current
+		insert NaFS
+			gbar_NaFS=GNa_fs
+			ena_NaFS=ENa_fs*/
+					
+		//Classical Inward Rectifier Non_Inactivating (IRK2)
+		//insert kir2fs
+		//gbar_kir2fs=0.0007
+	
+	/*insert hh1
+            gkbar_hh1=GK_pyr_s    
+	    	ek=EK_pyr
+	        gnabar_hh1=GNa_pyr_s
+	    	ena=ENa_pyr
+            gl_hh1=g_passive   	*/
+    }
+
+
+
+
+}
+func Area(){local a
+    access soma
+    a=area(0.5)
+    return a
+}
+access soma
+
+endtemplate fast_spiking 
+
+
+obfunc create_FS(){local ncell localobj List_cells 
+ncell=$2
+$o1.remove_all()
+List_cells=$o1
+for i=0, ncell-1{
+List_cells.append(new fast_spiking())
+}
+return List_cells
+}
+
+
+
+
+
+/*
+objref fs,Syn_Gaba
+fs=new List()
+create_FS(fs,1)
+
+proc put_Gaba_syn(){  
+    Syn_Gaba=new List()
+    for i=0, $o1.count()-1{
+    Syn_Gaba.append(new SynGABA($o1.o(i),0.6))
+    Syn_Gaba.o(i).put_syn($o1.o(i))
+    }
+}
+put_Gaba_syn(fs)    
+*/

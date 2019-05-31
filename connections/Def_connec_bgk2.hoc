@@ -1,0 +1,36 @@
+//load_file("templ_pyr1a.tem")// to test this prt of the program
+objref a,b,rc,Syn_Gaba
+//use_mcell_ran4(867656884)
+a=new Random(86465953648)//86465953648 (original)
+rc=new Random(3484577504746484)//3484577504746484 (original)
+//for (i=0;i<=nsyn-1;i+=1)
+strdef vrc_flag //is variance active?
+
+Delay=1 //Delay for synaptic transmision in ms
+proc conn_src_targ(){local i, nsyn, ntarg, nsrc, src,targ,section_flag, thresh,weight,no_autapse,w,gauss_mean,gauss_vari
+    nsyn=$1 ntarg=$2 nsrc=$3 src_conn_id=0 section_flag=$4 thresh$5 weight=$6 connect_index=$10 no_autapse=0
+    if(numarg()==12){gauss_mean=$11 gaus_vari=$12 vrc_flag="variance in use"}else{gauss_mean=0 gaus_vari=0 vrc_flag="not in use"}
+    for i=0,nsyn-1{    
+        r=a.uniform(0,1)
+        w=abs(rc.normal(gauss_mean,gaus_vari))
+        if(gauss_mean!=0&&gauss_vari!=0){weight=w}
+        targ=i%ntarg
+        if(i>0&&targ==0){src_conn_id+=1}
+        if(r<=connect_index){   //connectivity percentage            
+        if($o7==$o8&&src_conn_id==targ){no_autapse+=1  
+        //print "No autapse in ", $o7.o(src_conn_id),"   ",$o8.o(targ), "so far ",no_autapse, " autapses avoided"  
+        continue}               
+        if(section_flag==0){
+            $o7.o(src_conn_id).soma $o8.o(targ).connections.append(new NetCon(&v(0.5), $o9.object(i), thresh, Delay, weight))} else{
+        if(section_flag==1){
+            $o7.o(src_conn_id).Dend[nDend] $o8.o(targ).connections.append(new NetCon(&v(0.5), $o9.object(i), thresh, Delay, weight))}}
+        //print src_conn_id," ",targ, " ",$o7.o(src_conn_id),"   ",$o8.o(targ), "  ",$o9.object(i)
+           }else{
+               // print src_conn_id," ",targ, " ",$o7.o(src_conn_id),"   ",$o8.o(targ), "are not connected"
+                continue //here we connect the cells with certain probability
+            }         
+           }
+        }
+    //And finally here we load the synapses files to be used by  the network-functions Manager
+load_file("../synapses/SynGABA151207.hoc")
+load_file("../synapses/Glutamate_synap.hoc")

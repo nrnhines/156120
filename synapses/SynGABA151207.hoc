@@ -1,0 +1,35 @@
+/*Inhibitory synapse GABA-mediated  for a non-specific current*/
+load_file("nrngui.hoc")
+//objref
+proc put_param(){local i localobj GBsyn
+    GBsyn=$o1
+    GBsyn.tau_d = $2  // (ms) < 1e-9, 1e9 >
+    GBsyn.frac_rec=$3 // (1) 	<0,1>	
+    GBsyn.e = $4	  // (mV)
+    GBsyn.g*=$5       // dimensionless  
+    GBsyn.area_cell=$6 //surface area (um2)
+   } 
+   
+proc mk_GABA_s(){local i,nSyn, nCells,flagt, nDendt, place,tgref,tau_d,Frac_rec,volt,g_factor,ca     
+    nSyn=$1 nCells=$2 flagt=$3 nDendt=$4 place=$5 change_settings=$8  change_tau=$9 new_tau=$10
+    for i=0,nSyn-1 {
+    tgref=(i%nCells) //tgref flag for targets
+    if(flagt==0){$o6.o(tgref).soma $o7.append(new Gaba_syn(place))}
+    if(flagt==1){$o6.o(tgref).Dend[nDendt] $o7.append(new Gaba_syn(place))}
+    if(change_settings==1){
+        tau_d=10     Frac_rec=0.9   volt=-80 
+        g_factor=5 //synaptic strength  factor I->E
+        ca=$o6.o(tgref).Area()//surface area of the cell (um2)
+        if(change_tau==1){tau_d+=new_tau}
+        put_param($o7.o(i),tau_d,Frac_rec,volt,g_factor,ca)
+    }else{if(change_settings==0){
+        tau_d=10     Frac_rec=0.9   volt=-80 
+        g_factor=10//synaptic strength  factor I->I
+        ca=$o6.o(tgref).Area()//surface area of the cell (um2)
+        if(change_tau==1){tau_d+=new_tau}
+        put_param($o7.o(i),tau_d,Frac_rec,volt,g_factor,ca)}
+    }
+  
+    //print "create syn in ",i," ", tgref," ",$o6.o(tgref)," ",$o7.o(i), " g= ", g_factor
+    }
+}
