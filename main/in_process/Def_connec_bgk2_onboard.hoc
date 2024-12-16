@@ -2,7 +2,9 @@
 objref a,b,rc,Syn_Gaba
 //use_mcell_ran4(867656884)
 a=new Random(86465953648)//86465953648 (original)
+a.Random123(8646, 5953, 648)
 rc=new Random(3484577504746484)//3484577504746484 (original)
+rc.Random123(34845,77504,746484)
 //for (i=0;i<=nsyn-1;i+=1)
 strdef vrc_flag //is variance active?
 

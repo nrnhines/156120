@@ -11,6 +11,7 @@ endtemplate string
 
 objref word,word1, word3,word4,rand_gen,cells,nil,stim_list
 rand_gen=new Random(34)//seeds 34,78569783335
+rand_gen.Random123(34, 0, 0)
 strdef end
 word=new string("")
 word1=new string("")

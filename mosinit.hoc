@@ -2,5 +2,10 @@
 chdir("main")
 load_file("Control_execute_network_bgk.hoc")
 tstop=400
+objref zzz
+zzz = new List("NetStim")
+for zi=0, zzz.count()-1 {
+    zzz.o(zi).noiseFromRandom123(zi, 0, 0)
+}
 init()
 run()
